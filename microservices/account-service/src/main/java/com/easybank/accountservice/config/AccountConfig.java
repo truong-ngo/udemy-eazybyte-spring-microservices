@@ -10,7 +10,7 @@ import java.util.Map;
 @Configuration
 @ConfigurationProperties(prefix = "accounts")
 @Data
-public class AccountsConfig {
+public class AccountConfig {
     private String msg;
     private String buildVersion;
     private Map<String, String> mailDetails;
