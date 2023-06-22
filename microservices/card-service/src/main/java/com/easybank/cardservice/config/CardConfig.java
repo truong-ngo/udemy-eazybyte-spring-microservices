@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @Configuration
-@ConfigurationProperties(prefix = "loans")
+@ConfigurationProperties(prefix = "cards")
 @Data
 public class CardConfig {
     private String msg;

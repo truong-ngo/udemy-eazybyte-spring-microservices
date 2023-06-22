@@ -1,4 +1,4 @@
-package com.easybank.accountservice.config;
+package com.easybank.loanservice.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 @Configuration
-@ConfigurationProperties(prefix = "accounts")
+@ConfigurationProperties(prefix = "loans")
 @Data
-public class AccountConfig {
+public class LoanConfig {
     private String msg;
     private String buildVersion;
     private Map<String, String> mailDetails;

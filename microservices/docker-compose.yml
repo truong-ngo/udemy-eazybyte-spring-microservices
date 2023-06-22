@@ -1,0 +1,147 @@
+version: "3.8"
+services:
+  accounts-db:
+    image: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+    ports:
+      - "3307:3306"
+    volumes:
+      - accounts-db:/var/lib/mysql
+    networks:
+      - eazybank-network
+
+  loans-db:
+    image: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+    ports:
+      - "3308:3306"
+    volumes:
+      - loans-db:/var/lib/mysql
+    networks:
+      - eazybank-network
+
+  cards-db:
+    image: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+    ports:
+      - "3309:3306"
+    volumes:
+      - cards-db:/var/lib/mysql
+    networks:
+      - eazybank-network
+
+  config-server:
+    image: eazybank/config-server
+    container_name: configserver
+    ports:
+      - "8071:8071"
+    networks:
+      - eazybank-network
+    healthcheck:
+      test: curl --fail http://config-server:8071/accounts/default || exit 1
+
+  accounts:
+    image: eazybank/accounts:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - eazybank-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      accounts-db:
+        condition: service_started
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      spring.profile.active: default
+      spring.config.import: optional:configserver:http://config-server:8071
+      spring.datasource.url: jdbc:mysql://accounts-db:3306/udemy-eazybytes-microservices-account-service
+      spring.datasource.username: root
+      spring.datasource.password: 12345678
+      spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
+      spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+      spring.jpa.show-sql: true
+      spring.jpa.properties.hibernate.format_sql: true
+    volumes:
+      - .m2:/root/.m2
+
+  loans:
+    image: eazybank/loans:latest
+    ports:
+      - "8100:8100"
+    networks:
+      - eazybank-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      loans-db:
+        condition: service_started
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      spring.profile.active: default
+      spring.config.import: optional:configserver:http://config-server:8071
+      spring.datasource.url: jdbc:mysql://loans-db:3306/udemy-eazybytes-microservices-loan-service
+      spring.datasource.username: root
+      spring.datasource.password: 12345678
+      spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
+      spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+      spring.jpa.show-sql: true
+      spring.jpa.properties.hibernate.format_sql: true
+      server.port: 8100
+    volumes:
+      - .m2:/root/.m2
+
+  cards:
+    image: eazybank/cards:latest
+    ports:
+      - "8200:8200"
+    networks:
+      - eazybank-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      cards-db:
+        condition: service_started
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      spring.profile.active: default
+      spring.config.import: optional:configserver:http://config-server:8071
+      spring.datasource.url: jdbc:mysql://cards-db:3306/udemy-eazybytes-microservices-card-service
+      spring.datasource.username: root
+      spring.datasource.password: 12345678
+      spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
+      spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+      spring.jpa.show-sql: true
+      spring.jpa.properties.hibernate.format_sql: true
+      server.port: 8200
+    volumes:
+      - .m2:/root/.m2
+
+networks:
+  eazybank-network:
+
+volumes:
+  accounts-db:
+  loans-db:
+  cards-db:

@@ -1,4 +1,4 @@
-package com.easybank.loanservice.entity;
+package com.easybank.cardservice.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
