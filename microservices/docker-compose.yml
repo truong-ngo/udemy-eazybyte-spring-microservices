@@ -38,13 +38,27 @@ services:
 
   config-server:
     image: eazybank/config-server
-    container_name: configserver
     ports:
       - "8071:8071"
     networks:
       - eazybank-network
     healthcheck:
       test: curl --fail http://config-server:8071/accounts/default || exit 1
+
+  discovery-server:
+    image: eazybank/discovery-server
+    ports:
+      - "8761:8761"
+    networks:
+      - eazybank-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      spring.application.name: discovery-server
+      spring.config.import: optional:configserver:http://config-server:8071
+    healthcheck:
+      test: curl --fail http://discovery-server:8761/ || exit 1
 
   accounts:
     image: eazybank/accounts:latest
@@ -57,6 +71,8 @@ services:
         condition: service_healthy
       accounts-db:
         condition: service_started
+      discovery-server:
+        condition: service_healthy
     deploy:
       restart_policy:
         condition: on-failure
@@ -67,6 +83,7 @@ services:
       spring.application.name: accounts
       spring.profile.active: default
       spring.config.import: optional:configserver:http://config-server:8071
+      eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka
     volumes:
       - .m2:/root/.m2
 
@@ -81,6 +98,8 @@ services:
         condition: service_healthy
       loans-db:
         condition: service_started
+      discovery-server:
+        condition: service_healthy
     deploy:
       restart_policy:
         condition: on-failure
@@ -91,6 +110,7 @@ services:
       spring.application.name: loans
       spring.profile.active: default
       spring.config.import: optional:configserver:http://config-server:8071
+      eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka
     volumes:
       - .m2:/root/.m2
 
@@ -105,6 +125,8 @@ services:
         condition: service_healthy
       cards-db:
         condition: service_started
+      discovery-server:
+        condition: service_healthy
     deploy:
       restart_policy:
         condition: on-failure
@@ -115,6 +137,7 @@ services:
       spring.application.name: cards
       spring.profile.active: default
       spring.config.import: optional:configserver:http://config-server:8071
+      eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka
     volumes:
       - .m2:/root/.m2
 
