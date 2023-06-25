@@ -24,8 +24,8 @@ public class CardServiceImpl implements CardService {
     private final AccountClient accountClient;
 
     @Override
-    public List<CardDTO> findAllByCustomer(Long customerId) {
-        CustomerDTO customerDTO = accountClient.getCustomer(customerId);
+    public List<CardDTO> findAllByCustomer(Long customerId, String header) {
+        CustomerDTO customerDTO = accountClient.getCustomer(customerId, header);
         log.info("Request to get loan with customer: {}", customerDTO);
         return cardRepo.findAllByCustomerId(customerId).stream().map(cardMapper::toDto).toList();
     }

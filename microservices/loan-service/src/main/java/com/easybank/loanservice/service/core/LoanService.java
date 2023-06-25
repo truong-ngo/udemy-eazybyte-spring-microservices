@@ -6,5 +6,5 @@ import com.easybank.loanservice.service.dto.LoanDTO;
 import java.util.List;
 
 public interface LoanService extends CrudService<LoanDTO, Long> {
-    List<LoanDTO> findAllByCustomerId(Long customerId);
+    List<LoanDTO> findAllByCustomerId(Long customerId, String header);
 }

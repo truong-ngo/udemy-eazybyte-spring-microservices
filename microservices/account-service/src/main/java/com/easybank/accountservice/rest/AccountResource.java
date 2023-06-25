@@ -5,7 +5,9 @@ import com.easybank.accountservice.entity.Properties;
 import com.easybank.accountservice.service.core.AccountService;
 import com.easybank.accountservice.service.dto.AccountDTO;
 import com.easybank.common.service.dto.CustomerDTO;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +28,12 @@ public class AccountResource {
     }
 
     @GetMapping("/accounts/properties")
+    @RateLimiter(name = "accountLimiter", fallbackMethod = "accountLimiterFallback")
     public Properties getPropertiesDetail() {
         return new Properties(accountConfig.getMsg(), accountConfig.getBuildVersion(), accountConfig.getMailDetails(), accountConfig.getActiveBranches());
+    }
+
+    private Properties accountLimiterFallback(Throwable throwable) {
+        return new Properties();
     }
 }

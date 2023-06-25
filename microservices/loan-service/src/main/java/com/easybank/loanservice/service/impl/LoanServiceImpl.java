@@ -24,8 +24,8 @@ public class LoanServiceImpl implements LoanService {
     private final AccountClient accountClient;
 
     @Override
-    public List<LoanDTO> findAllByCustomerId(Long customerId) {
-        CustomerDTO customerDTO = accountClient.getCustomer(customerId);
+    public List<LoanDTO> findAllByCustomerId(Long customerId, String header) {
+        CustomerDTO customerDTO = accountClient.getCustomer(customerId, header);
         log.info("Request to get loan with customer: {}", customerDTO);
         return loanRepo.findAllByCustomerId(customerId).stream().map(loanMapper::toDto).toList();
     }

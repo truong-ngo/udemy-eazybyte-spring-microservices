@@ -5,13 +5,15 @@ import com.easybank.loanservice.config.LoanConfig;
 import com.easybank.loanservice.entity.Properties;
 import com.easybank.loanservice.service.core.LoanService;
 import com.easybank.loanservice.service.dto.LoanDTO;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -22,13 +24,18 @@ public class LoanResource {
     private final LoanConfig loanConfig;
 
     @PostMapping("/loans")
-    public ResponseEntity<List<LoanDTO>> getLoans(@RequestBody CustomerDTO customer) {
-        List<LoanDTO> body = loanService.findAllByCustomerId(customer.getId());
+    @Retry(name = "retryForCustomerDetails", fallbackMethod = "customDetailsFallback")
+    public ResponseEntity<List<LoanDTO>> getLoans(@RequestBody CustomerDTO customer, @RequestHeader("eazybank-correlation-id") String headers) {
+        List<LoanDTO> body = loanService.findAllByCustomerId(customer.getId(), headers);
         return ResponseEntity.ok(body);
     }
 
     @GetMapping("/loans/properties")
     public Properties getPropertiesDetail() {
         return new Properties(loanConfig.getMsg(), loanConfig.getBuildVersion(), loanConfig.getMailDetails(), loanConfig.getActiveBranches());
+    }
+
+    private ResponseEntity<List<LoanDTO>> customDetailsFallback(CustomerDTO customer, Throwable throwable) {
+        return ResponseEntity.ok(new ArrayList<>());
     }
 }
