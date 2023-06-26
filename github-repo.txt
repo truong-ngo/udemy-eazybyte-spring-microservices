@@ -1,1 +1,2 @@
 https://github.com/eazybytes/microservices-with-spring-sectionwise-code
+https://netflixtechblog.com/netflix-oss-and-spring-boot-coming-full-circle-4855947713a0
