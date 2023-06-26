@@ -8,6 +8,8 @@ import com.easybank.loanservice.service.dto.LoanDTO;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +22,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LoanResource {
 
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
+
     private final LoanService loanService;
     private final LoanConfig loanConfig;
 
     @PostMapping("/loans")
     @Retry(name = "retryForCustomerDetails", fallbackMethod = "customDetailsFallback")
     public ResponseEntity<List<LoanDTO>> getLoans(@RequestBody CustomerDTO customer, @RequestHeader("eazybank-correlation-id") String headers) {
+        log.info("Request to get Loans: {}", customer);
         List<LoanDTO> body = loanService.findAllByCustomerId(customer.getId(), headers);
+        log.info("Response: {}", body);
         return ResponseEntity.ok(body);
     }
 
