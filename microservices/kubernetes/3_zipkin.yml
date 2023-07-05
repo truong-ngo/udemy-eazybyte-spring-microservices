@@ -25,6 +25,8 @@ kind: Service
 metadata:
   name: zipkin-service
 spec:
+  externalIPs:
+    - 127.0.0.1
   selector:
     app: zipkin
   type: LoadBalancer
