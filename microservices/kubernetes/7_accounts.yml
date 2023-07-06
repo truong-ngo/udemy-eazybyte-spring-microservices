@@ -40,22 +40,36 @@ spec:
                 configMapKeyRef:
                   name: eazybank-configmap
                   key: SPRING_CONFIG_IMPORT
-            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-              value: 'http://discoveryserver-service:8761/eureka/'
-#              valueFrom:
-#                configMapKeyRef:
-#                  name: eazybank-configmap
-#                  key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+            - name: eureka.client.serviceUrl.defaultZone
+              valueFrom:
+                configMapKeyRef:
+                  name: eazybank-configmap
+                  key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
             - name: MYSQL_HOST
-              value: 'mysql'
+              valueFrom:
+                configMapKeyRef:
+                  name: eazybank-configmap
+                  key: MYSQL_HOST
             - name: MYSQL_PORT
-              value: '3306'
+              valueFrom:
+                configMapKeyRef:
+                  name: eazybank-configmap
+                  key: MYSQL_PORT
             - name: MYSQL_DATABASE
-              value: 'udemy-eazybytes-microservices-account-service'
+              valueFrom:
+                configMapKeyRef:
+                  name: eazybank-configmap
+                  key: ACCOUNTS_DATABASE
             - name: MYSQL_USER
-              value: 'root'
+              valueFrom:
+                configMapKeyRef:
+                  name: eazybank-configmap
+                  key: MYSQL_ROOT_USER
             - name: MYSQL_PASSWORD
-              value: '12345678'
+              valueFrom:
+                configMapKeyRef:
+                  name: eazybank-configmap
+                  key: MYSQL_ROOT_PASSWORD
 ---
 apiVersion: v1
 kind: Service

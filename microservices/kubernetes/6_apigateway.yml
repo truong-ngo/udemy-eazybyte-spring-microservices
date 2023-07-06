@@ -1,30 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: discoveryserver-deployment
+  name: apigateway-deployment
   labels:
-    app: discoveryserver
+    app: apigateway
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: discoveryserver
+      app: apigateway
   template:
     metadata:
       labels:
-        app: discoveryserver
+        app: apigateway
     spec:
       containers:
-        - name: discoveryserver
-          image: truongngo1993/eazybank-discovery-server:latest
+        - name: apigateway
+          image: truongngo1993/eazybank-api-gateway:latest
           ports:
-            - containerPort: 8761
+            - containerPort: 8765
           env:
             - name: SPRING_APPLICATION_NAME
               valueFrom:
                 configMapKeyRef:
                   name: eazybank-configmap
-                  key: DISCOVERY_SERVER_APPLICATION_NAME
+                  key: API_GATEWAY_APPLICATION_NAME
             - name: SPRING_PROFILES_ACTIVE
               valueFrom:
                 configMapKeyRef:
@@ -40,16 +40,21 @@ spec:
                 configMapKeyRef:
                   name: eazybank-configmap
                   key: SPRING_CONFIG_IMPORT
+            - name: eureka.client.serviceUrl.defaultZone
+              valueFrom:
+                configMapKeyRef:
+                  name: eazybank-configmap
+                  key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: discoveryserver-service
+  name: apigateway
 spec:
   selector:
-    app: discoveryserver
+    app: apigateway
   type: LoadBalancer
   ports:
     - protocol: TCP
-      port: 8761
-      targetPort: 8761
+      port: 8765
+      targetPort: 8765

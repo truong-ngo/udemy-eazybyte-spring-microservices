@@ -3,11 +3,19 @@ kind: ConfigMap
 metadata:
   name: eazybank-configmap
 data:
-  # SPRING_ZIPKIN_BASEURL: http://zipkin-service:9411/
-  MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin-service:9411/api/v2/spans
   SPRING_PROFILES_ACTIVE: prod
+  API_GATEWAY_APPLICATION_NAME: api-gateway
+  DISCOVERY_SERVER_APPLICATION_NAME: discovery-server
+  ACCOUNTS_APPLICATION_NAME: accounts
+  LOANS_APPLICATION_NAME: loans
+  CARDS_APPLICATION_NAME: cards
+  MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin-service:9411/api/v2/spans
   SPRING_CONFIG_IMPORT: configserver:http://configserver-service:8071/
   EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discoveryserver-service:8761/eureka/
-  EUREKA_APPLICATION_NAME: discovery-server
-  ACCOUNTS_APPLICATION_NAME: accounts
   MYSQL_ROOT_PASSWORD: '12345678'
+  MYSQL_ROOT_USER: 'root'
+  MYSQL_HOST: 'mysql'
+  MYSQL_PORT: '3306'
+  ACCOUNTS_DATABASE: 'udemy-eazybytes-microservices-account-service'
+  LOANS_DATABASE: 'udemy-eazybytes-microservices-loan-service'
+  CARDS_DATABASE: 'udemy-eazybytes-microservices-card-service'

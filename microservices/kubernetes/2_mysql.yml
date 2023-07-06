@@ -27,19 +27,15 @@ spec:
       labels:
         app: mysql
     spec:
-#      initContainers:
-#        - name: init-mysql
-#          image: busybox
-#          command: [ 'sh', '-c', 'chmod 777 /var/lib/mysql' ]
-#          volumeMounts:
-#            - mountPath: /var/lib/mysql
-#              name: mysql-persistent-storage
       containers:
       - image: mysql:latest
         name: mysql
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: '12345678'
+          valueFrom:
+            configMapKeyRef:
+              name: eazybank-configmap
+              key: MYSQL_ROOT_PASSWORD
         ports:
         - containerPort: 3306
           name: mysql
