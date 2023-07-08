@@ -1,0 +1,32 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+deploymentName: mysql-deployment
+deploymentLabel: mysql
+appName: mysql
+volumeLabelType: local
+volumeStorageClassName: manual
+volumeStorage: 1Gi
+accessModes: ReadWriteMany
+hostPath: /mnt/data
+
+replicaCount: 1
+
+image:
+  repository: mysql
+  tag: latest
+
+containerPort: 3306
+
+service:
+  type: LoadBalancer
+  port: 3306
+  targetPort: 3306
+
+config_enabled: false
+zipkin_enabled: false
+profile_enabled: false
+eureka_enabled: false
+appname_enabled: false
+database_enabled: false
+is_mysql: true
