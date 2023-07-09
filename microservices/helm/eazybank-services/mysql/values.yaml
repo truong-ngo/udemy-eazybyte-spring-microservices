@@ -30,3 +30,4 @@ eureka_enabled: false
 appname_enabled: false
 database_enabled: false
 is_mysql: true
+auth_enabled: false

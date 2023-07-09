@@ -27,4 +27,4 @@ dependencies:
   repository: file://../../eazybank-services/mysql
   version: 0.1.0
 digest: sha256:fe9d89330fe34fd8cb427a3038393d95920dda22deaef98a8111ca56b7462a7d
-generated: "2023-07-09T00:55:40.1637081+07:00"
+generated: "2023-07-10T02:03:48.9706936+07:00"

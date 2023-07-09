@@ -10,3 +10,4 @@ global:
   mysqlPort: 3306
   mysqlRootUser: root
   mysqlRootPassword: 12345678
+  keyCloakURL: http://my-release-keycloak:80/realms/master/protocol/openid-connect/certs

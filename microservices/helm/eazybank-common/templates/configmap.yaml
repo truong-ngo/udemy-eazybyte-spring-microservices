@@ -12,4 +12,5 @@ data:
   MYSQL_ROOT_PASSWORD: "{{ .Values.global.mysqlRootPassword }}"
   MYSQL_HOST: {{ .Values.global.mysqlHost }}
   MYSQL_PORT: "{{ .Values.global.mysqlPort }}"
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: {{ .Values.global.keyCloakURL }}
 {{- end -}}
