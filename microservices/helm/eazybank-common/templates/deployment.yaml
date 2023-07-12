@@ -95,7 +95,7 @@ spec:
           - name: MYSQL_PASSWORD
             valueFrom:
               configMapKeyRef:
-                name: eazybank-configmap
+                name: {{ .Values.global.configMapName }}
                 key: MYSQL_ROOT_PASSWORD
           {{- end }}
           {{- if .Values.is_mysql }}
