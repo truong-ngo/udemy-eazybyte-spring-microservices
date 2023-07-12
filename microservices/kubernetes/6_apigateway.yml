@@ -45,6 +45,8 @@ spec:
                 configMapKeyRef:
                   name: eazybank-configmap
                   key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI
+              value: http://keycloak:8080/realms/master/protocol/openid-connect/certs
 ---
 apiVersion: v1
 kind: Service
