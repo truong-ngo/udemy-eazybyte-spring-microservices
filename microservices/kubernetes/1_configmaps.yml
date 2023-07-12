@@ -11,7 +11,7 @@ data:
   CARDS_APPLICATION_NAME: cards
   MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin-service:9411/api/v2/spans
   SPRING_CONFIG_IMPORT: configserver:http://configserver-service:8071/
-  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discoveryserver-service:8761/eureka/
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discoveryserver:8761/eureka/
   MYSQL_ROOT_PASSWORD: '12345678'
   MYSQL_ROOT_USER: 'root'
   MYSQL_HOST: 'mysql'

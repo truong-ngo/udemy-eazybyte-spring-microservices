@@ -44,7 +44,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: discoveryserver-service
+  name: discoveryserver
 spec:
   selector:
     app: discoveryserver
