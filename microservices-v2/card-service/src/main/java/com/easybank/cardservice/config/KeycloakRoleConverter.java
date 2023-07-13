@@ -1,4 +1,4 @@
-package com.easybank.accountservice.config;
+package com.easybank.cardservice.config;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
