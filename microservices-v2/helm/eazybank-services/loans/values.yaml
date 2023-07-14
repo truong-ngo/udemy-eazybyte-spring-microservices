@@ -1,0 +1,30 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+deploymentName: loans-deployment
+deploymentLabel: loans
+appName: loans
+
+replicaCount: 1
+
+image:
+  repository: truongngo1993/eazybank-loans
+  tag: latest
+
+containerPort: 8100
+
+service:
+  type: LoadBalancer
+  port: 8100
+  targetPort: 8100
+
+databaseName: 'udemy-eazybytes-microservices-loan-service'
+
+config_enabled: true
+zipkin_enabled: true
+profile_enabled: true
+eureka_enabled: true
+appname_enabled: true
+database_enabled: true
+is_mysql: false
+auth_enabled: false

@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: keycloak
+  name: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: keycloak
+  template:
+    metadata:
+      labels:
+        io.kompose.service: keycloak
+    spec:
+      containers:
+        - env:
+            - name: DB_ADDR
+              value: postgres-keycloak
+            - name: DB_DATABASE
+              value: keycloak
+            - name: DB_PASSWORD
+              value: keycloak
+            - name: DB_USER
+              value: keycloak
+            - name: DB_VENDOR
+              value: POSTGRES
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: admin
+            - name: KEYCLOAK_ADMIN
+              value: admin
+          image: quay.io/keycloak/keycloak:21.1.2
+          imagePullPolicy: ""
+          name: keycloak
+          ports:
+            - containerPort: 8080
+          resources: {}
+          command: ["/opt/keycloak/bin/kc.sh", "start-dev"]
+      restartPolicy: Always
+      serviceAccountName: ""
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+  selector:
+    io.kompose.service: keycloak
+  type: ClusterIP

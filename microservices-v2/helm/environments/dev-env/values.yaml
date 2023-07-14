@@ -1,0 +1,12 @@
+global:
+  configMapName: eazybankdev-configmap
+  zipkinBaseURL: http://zipkin:9411/api/v2/spans
+  activeProfile: dev
+  configServerURL: configserver:http://configserver:8071/
+  eurekaServerURL: http://discoveryserver:8761/eureka/
+  volumeName: mysql-pv-volume
+  volumeClaimName: mysql-pv-claim
+  mysqlHost: 'mysql'
+  mysqlPort: '3306'
+  mysqlRootUser: 'root'
+  mysqlRootPassword: '12345678'

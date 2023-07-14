@@ -1,0 +1,26 @@
+deploymentName: accounts-deployment
+deploymentLabel: accounts
+appName: accounts
+
+replicaCount: 1
+
+image:
+  repository: truongngo1993/eazybank-accounts
+  tag: latest
+
+containerPort: 8080
+
+service:
+  type: LoadBalancer
+  port: 8080
+  targetPort: 8080
+databaseName: 'udemy-eazybytes-microservices-account-service'
+
+config_enabled: true
+zipkin_enabled: true
+profile_enabled: true
+eureka_enabled: true
+appname_enabled: true
+database_enabled: true
+is_mysql: false
+auth_enabled: false

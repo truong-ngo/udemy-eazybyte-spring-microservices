@@ -1,0 +1,113 @@
+{{- define "common.deployment" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deploymentName }}
+  labels:
+    app: {{ .Values.deploymentLabel }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deploymentLabel }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deploymentLabel }}
+    spec:
+      containers:
+        - name: {{ .Values.deploymentLabel }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+          {{- if not .Values.is_mysql }}
+            - containerPort: {{ .Values.containerPort }}
+              protocol: TCP
+          {{- end }}
+          {{- if .Values.is_mysql }}
+            - containerPort: {{ .Values.containerPort }}
+              name: {{ .Values.deploymentLabel }}
+          {{- end }}
+          env:
+          {{- if .Values.appname_enabled }}
+          - name: SPRING_APPLICATION_NAME
+            value: {{ .Values.appName }}
+          {{- end }}
+          {{- if .Values.profile_enabled }}
+          - name: SPRING_PROFILES_ACTIVE
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.global.configMapName }}
+                key: SPRING_PROFILES_ACTIVE
+          {{- end }}
+          {{- if .Values.zipkin_enabled }}
+          - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.global.configMapName }}
+                key: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+          {{- end }}
+          {{- if .Values.config_enabled }}
+          - name: SPRING_CONFIG_IMPORT
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.global.configMapName }}
+                key: SPRING_CONFIG_IMPORT
+          {{- end }}
+          {{- if .Values.eureka_enabled }}
+          - name: eureka.client.serviceUrl.defaultZone
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.global.configMapName }}
+                key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          {{- end }}
+          {{- if .Values.auth_enabled }}
+          - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.global.configMapName }}
+                key: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI
+          {{- end }}
+          {{- if .Values.is_mysql }}
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.global.configMapName }}
+                key: MYSQL_ROOT_PASSWORD
+          {{- end }}
+          {{- if .Values.database_enabled }}
+          - name: MYSQL_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.global.configMapName }}
+                key: MYSQL_HOST
+          - name: MYSQL_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.global.configMapName }}
+                key: MYSQL_PORT
+          - name: MYSQL_DATABASE
+            value: {{ .Values.databaseName }}
+          - name: MYSQL_USER
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.global.configMapName }}
+                key: MYSQL_ROOT_USER
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.global.configMapName }}
+                key: MYSQL_ROOT_PASSWORD
+          {{- end }}
+          {{- if .Values.is_mysql }}
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+          {{- end }}
+
+      {{- if .Values.is_mysql }}
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.global.volumeClaimName }}
+      {{- end }}
+{{- end -}}

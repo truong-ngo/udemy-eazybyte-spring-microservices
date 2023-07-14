@@ -1,0 +1,25 @@
+{{- define "common.service" -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.deploymentLabel }}
+spec:
+  selector:
+    app: {{ .Values.deploymentLabel }}
+  {{- if not .Values.is_mysql }}
+  type: {{ .Values.service.type }}
+  {{- end }}
+  ports:
+    {{- if not .Values.is_mysql }}
+    - name: http
+      protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+    {{- end }}
+    {{- if .Values.is_mysql }}
+    - port: {{ .Values.service.port }}
+    {{- end }}
+  {{- if .Values.is_mysql }}
+  clusterIP: None
+  {{- end }}
+{{- end -}}

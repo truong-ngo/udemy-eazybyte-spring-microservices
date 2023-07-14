@@ -1,0 +1,264 @@
+version: "3.8"
+services:
+  accounts-db:
+    image: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+    ports:
+      - "3307:3306"
+    volumes:
+      - accounts-db:/var/lib/mysql
+    networks:
+      - eazybank-network
+
+  loans-db:
+    image: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+    ports:
+      - "3308:3306"
+    volumes:
+      - loans-db:/var/lib/mysql
+    networks:
+      - eazybank-network
+
+  cards-db:
+    image: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+    ports:
+      - "3309:3306"
+    volumes:
+      - cards-db:/var/lib/mysql
+    networks:
+      - eazybank-network
+
+  auth-db:
+    image: postgres
+    restart: unless-stopped
+    volumes:
+      - auth-db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+      PGDATA: /var/lib/postgresql/data/auth/
+    ports:
+      - "5432:5432"
+    networks:
+      - eazybank-network
+
+  auth-server:
+    image: quay.io/keycloak/keycloak:21.1.2
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_FEATURES:
+        authorization
+        token-exchange
+        docker
+        impersonation
+        scripts
+        upload-scripts
+        web-authn
+        client-policies
+        dynamic-scopes
+    ports:
+      - "7080:8080"
+    depends_on:
+      auth-db:
+        condition: service_started
+    entrypoint: /opt/keycloak/bin/kc.sh start-dev
+    networks:
+      - eazybank-network
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3500:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: password
+    networks:
+      - eazybank-network
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - eazybank-network
+
+  zipkin-server:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - eazybank-network
+
+  config-server:
+    image: eazybank/config-server:2.0.0
+    ports:
+      - "8071:8071"
+    networks:
+      - eazybank-network
+    depends_on:
+      zipkin-server:
+        condition: service_started
+    healthcheck:
+      test: curl --fail http://config-server:8071/accounts/default || exit 1
+    environment:
+      management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
+
+  discovery-server:
+    image: eazybank/discovery-server
+    ports:
+      - "8761:8761"
+    networks:
+      - eazybank-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      spring.application.name: discovery-server
+      spring.config.import: optional:configserver:http://config-server:8071
+      management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
+    healthcheck:
+      test: curl --fail http://discovery-server:8761/ || exit 1
+
+  api-gateway:
+    image: eazybank/api-gateway:2.0.0
+    ports:
+      - "8765:8765"
+    networks:
+      - eazybank-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      auth-server:
+        condition: service_started
+    environment:
+      spring.application.name: api-gateway
+      spring.config.import: optional:configserver:http://config-server:8071
+      eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka
+      management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
+      spring.security.oauth2.client.provider.keycloak.token-uri: http://auth-server:8080/realms/master/protocol/openid-connect/token
+      spring.security.oauth2.client.provider.keycloak.authorization-uri: http://auth-server:8080/realms/master/protocol/openid-connect/auth
+      spring.security.oauth2.client.provider.keycloak.userinfo-uri: http://auth-server:8080/realms/master/protocol/openid-connect/userinfo
+      spring.security.oauth2.client.provider.keycloak.user-name-attribute: preferred_username
+      spring.security.oauth2.client.registration.eazybank-gateway.provider: keycloak
+      spring.security.oauth2.client.registration.eazybank-gateway.client-id: eazybank-gateway-ui
+      spring.security.oauth2.client.registration.eazybank-gateway.client-secret: m47ge2YyeO3oFByleVPy3hgKx5XKSSe2
+      spring.security.oauth2.client.registration.eazybank-gateway.authorization-grant-type: authorization_code
+      spring.security.oauth2.client.registration.eazybank-gateway.redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
+
+  accounts:
+    image: eazybank/accounts:2.0.0
+    ports:
+      - "8080:8080"
+    networks:
+      - eazybank-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      accounts-db:
+        condition: service_started
+      discovery-server:
+        condition: service_healthy
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      spring.application.name: accounts
+      spring.profile.active: default
+      spring.config.import: optional:configserver:http://config-server:8071
+      eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka
+      management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
+      spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://auth-server:8080/realms/master/protocol/openid-connect/certs
+    volumes:
+      - .m2:/root/.m2
+
+  loans:
+    image: eazybank/loans:latest
+    ports:
+      - "8100:8100"
+    networks:
+      - eazybank-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      loans-db:
+        condition: service_started
+      discovery-server:
+        condition: service_healthy
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      spring.application.name: loans
+      spring.profile.active: default
+      spring.config.import: optional:configserver:http://config-server:8071
+      eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka
+      management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
+      spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://auth-server:8080/realms/master/protocol/openid-connect/certs
+    volumes:
+      - .m2:/root/.m2
+
+  cards:
+    image: eazybank/cards:2.0.0
+    ports:
+      - "8200:8200"
+    networks:
+      - eazybank-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      cards-db:
+        condition: service_started
+      discovery-server:
+        condition: service_healthy
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      spring.application.name: cards
+      spring.profile.active: default
+      spring.config.import: optional:configserver:http://config-server:8071
+      eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka
+      management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
+      spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://auth-server:8080/realms/master/protocol/openid-connect/certs
+    volumes:
+      - .m2:/root/.m2
+
+networks:
+  eazybank-network:
+
+volumes:
+  accounts-db:
+  loans-db:
+  cards-db:
+  auth-db:

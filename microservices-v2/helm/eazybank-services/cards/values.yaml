@@ -1,0 +1,30 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+deploymentName: cards-deployment
+deploymentLabel: cards
+appName: cards
+
+replicaCount: 1
+
+image:
+  repository: truongngo1993/eazybank-cards
+  tag: latest
+
+containerPort: 8200
+
+service:
+  type: LoadBalancer
+  port: 8200
+  targetPort: 8200
+
+databaseName: 'udemy-eazybytes-microservices-card-service'
+
+config_enabled: true
+zipkin_enabled: true
+profile_enabled: true
+eureka_enabled: true
+appname_enabled: true
+database_enabled: true
+is_mysql: false
+auth_enabled: false

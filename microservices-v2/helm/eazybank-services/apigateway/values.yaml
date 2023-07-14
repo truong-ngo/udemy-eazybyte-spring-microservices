@@ -1,0 +1,28 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+deploymentName: apigateway-deployment
+deploymentLabel: apigateway
+appName: api-gateway
+
+replicaCount: 1
+
+image:
+  repository: truongngo1993/eazybank-api-gateway
+  tag: latest
+
+containerPort: 8765
+
+service:
+  type: LoadBalancer
+  port: 8765
+  targetPort: 8765
+
+config_enabled: true
+zipkin_enabled: true
+profile_enabled: true
+eureka_enabled: true
+appname_enabled: true
+database_enabled: false
+is_mysql: false
+auth_enabled: true

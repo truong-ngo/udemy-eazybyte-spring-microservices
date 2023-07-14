@@ -1,0 +1,27 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+deploymentName: discoveryserver-deployment
+deploymentLabel: discoveryserver
+appName: discovery-server
+
+replicaCount: 1
+
+image:
+  repository: truongngo1993/eazybank-discovery-server
+  tag: latest
+
+containerPort: 8761
+
+service:
+  type: LoadBalancer
+  port: 8761
+  targetPort: 8761
+
+config_enabled: true
+zipkin_enabled: true
+profile_enabled: true
+eureka_enabled: false
+appname_enabled: true
+database_enabled: false
+is_mysql: false
+auth_enabled: false
