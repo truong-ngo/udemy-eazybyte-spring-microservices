@@ -140,7 +140,7 @@ services:
       test: curl --fail http://discovery-server:8761/ || exit 1
 
   api-gateway:
-    image: eazybank/api-gateway:2.0.0
+    image: eazybank/api-gateway-v2
     ports:
       - "8765:8765"
     networks:
@@ -157,15 +157,6 @@ services:
       spring.config.import: optional:configserver:http://config-server:8071
       eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka
       management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
-      spring.security.oauth2.client.provider.keycloak.token-uri: http://auth-server:8080/realms/master/protocol/openid-connect/token
-      spring.security.oauth2.client.provider.keycloak.authorization-uri: http://auth-server:8080/realms/master/protocol/openid-connect/auth
-      spring.security.oauth2.client.provider.keycloak.userinfo-uri: http://auth-server:8080/realms/master/protocol/openid-connect/userinfo
-      spring.security.oauth2.client.provider.keycloak.user-name-attribute: preferred_username
-      spring.security.oauth2.client.registration.eazybank-gateway.provider: keycloak
-      spring.security.oauth2.client.registration.eazybank-gateway.client-id: eazybank-gateway-ui
-      spring.security.oauth2.client.registration.eazybank-gateway.client-secret: m47ge2YyeO3oFByleVPy3hgKx5XKSSe2
-      spring.security.oauth2.client.registration.eazybank-gateway.authorization-grant-type: authorization_code
-      spring.security.oauth2.client.registration.eazybank-gateway.redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
 
   accounts:
     image: eazybank/accounts:2.0.0
