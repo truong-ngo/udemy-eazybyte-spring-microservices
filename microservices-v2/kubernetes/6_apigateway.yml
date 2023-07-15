@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: apigateway
-          image: truongngo1993/eazybank-api-gateway:latest
+          image: truongngo1993/eazybank-api-gateway:2.0.0
           ports:
             - containerPort: 8765
           env:
@@ -45,8 +45,16 @@ spec:
                 configMapKeyRef:
                   name: eazybank-configmap
                   key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI
-              value: http://keycloak:8080/realms/master/protocol/openid-connect/certs
+            - name: spring.security.oauth2.client.provider.keycloak.token-uri
+              value: http://keycloak:8888/realms/master/protocol/openid-connect/token
+            - name: spring.security.oauth2.client.provider.keycloak.authorization-uri
+              value: http://keycloak:8888/realms/master/protocol/openid-connect/auth
+            - name: spring.security.oauth2.client.provider.keycloak.userinfo-uri
+              value: http://keycloak:8888/realms/master/protocol/openid-connect/userinfo
+            - name: spring.security.oauth2.client.registration.eazybank-gateway.client-id
+              value: eazybank-gateway-ui
+            - name: spring.security.oauth2.client.registration.eazybank-gateway.client-secret
+              value: gsAP0YAxcOL8gw6TXfZXSbw9qCX0797t
 ---
 apiVersion: v1
 kind: Service
