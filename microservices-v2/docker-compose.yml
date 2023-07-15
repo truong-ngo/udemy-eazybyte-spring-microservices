@@ -10,7 +10,7 @@ services:
     volumes:
       - accounts-db:/var/lib/mysql
     networks:
-      - eazybank-network
+      - eazybank-network-v2
 
   loans-db:
     image: mysql
@@ -22,7 +22,7 @@ services:
     volumes:
       - loans-db:/var/lib/mysql
     networks:
-      - eazybank-network
+      - eazybank-network-v2
 
   cards-db:
     image: mysql
@@ -34,7 +34,7 @@ services:
     volumes:
       - cards-db:/var/lib/mysql
     networks:
-      - eazybank-network
+      - eazybank-network-v2
 
   auth-db:
     image: postgres
@@ -49,7 +49,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - eazybank-network
+      - eazybank-network-v2
 
   auth-server:
     image: quay.io/keycloak/keycloak:21.1.2
@@ -73,13 +73,14 @@ services:
         client-policies
         dynamic-scopes
     ports:
-      - "7080:8080"
+      - "8888:8888"
     depends_on:
       auth-db:
         condition: service_started
-    entrypoint: /opt/keycloak/bin/kc.sh start-dev
+    entrypoint: /opt/keycloak/bin/kc.sh start-dev --http-port=8888
     networks:
-      - eazybank-network
+      - eazybank-network-v2
+    # add "127.0.0.1 keycloak" to host file in order to redirect via browser
 
   grafana:
     image: grafana/grafana
@@ -89,7 +90,7 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: password
     networks:
-      - eazybank-network
+      - eazybank-network-v2
     depends_on:
       - prometheus
 
@@ -100,21 +101,21 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
-      - eazybank-network
+      - eazybank-network-v2
 
   zipkin-server:
     image: openzipkin/zipkin
     ports:
       - "9411:9411"
     networks:
-      - eazybank-network
+      - eazybank-network-v2
 
   config-server:
     image: eazybank/config-server:2.0.0
     ports:
       - "8071:8071"
     networks:
-      - eazybank-network
+      - eazybank-network-v2
     depends_on:
       zipkin-server:
         condition: service_started
@@ -128,7 +129,7 @@ services:
     ports:
       - "8761:8761"
     networks:
-      - eazybank-network
+      - eazybank-network-v2
     depends_on:
       config-server:
         condition: service_healthy
@@ -144,7 +145,7 @@ services:
     ports:
       - "8765:8765"
     networks:
-      - eazybank-network
+      - eazybank-network-v2
     depends_on:
       config-server:
         condition: service_healthy
@@ -163,7 +164,7 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - eazybank-network
+      - eazybank-network-v2
     depends_on:
       config-server:
         condition: service_healthy
@@ -183,7 +184,7 @@ services:
       spring.config.import: optional:configserver:http://config-server:8071
       eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka
       management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
-      spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://auth-server:8080/realms/master/protocol/openid-connect/certs
+      spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://auth-server:8888/realms/master/protocol/openid-connect/certs
     volumes:
       - .m2:/root/.m2
 
@@ -192,7 +193,7 @@ services:
     ports:
       - "8100:8100"
     networks:
-      - eazybank-network
+      - eazybank-network-v2
     depends_on:
       config-server:
         condition: service_healthy
@@ -212,7 +213,6 @@ services:
       spring.config.import: optional:configserver:http://config-server:8071
       eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka
       management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
-      spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://auth-server:8080/realms/master/protocol/openid-connect/certs
     volumes:
       - .m2:/root/.m2
 
@@ -221,7 +221,7 @@ services:
     ports:
       - "8200:8200"
     networks:
-      - eazybank-network
+      - eazybank-network-v2
     depends_on:
       config-server:
         condition: service_healthy
@@ -241,12 +241,11 @@ services:
       spring.config.import: optional:configserver:http://config-server:8071
       eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka
       management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
-      spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://auth-server:8080/realms/master/protocol/openid-connect/certs
     volumes:
       - .m2:/root/.m2
 
 networks:
-  eazybank-network:
+  eazybank-network-v2:
 
 volumes:
   accounts-db:
