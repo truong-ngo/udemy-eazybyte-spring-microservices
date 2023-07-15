@@ -28,3 +28,4 @@ appname_enabled: true
 database_enabled: true
 is_mysql: false
 auth_enabled: false
+auth_client_enabled: false

@@ -98,6 +98,33 @@ spec:
                 name: {{ .Values.global.configMapName }}
                 key: MYSQL_ROOT_PASSWORD
           {{- end }}
+          {{- if .Values.auth_client_enabled }}
+          - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_TOKEN-URI
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.global.configMapName }}
+                key: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_TOKEN-URI
+          - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_AUTHORIZATION-URI
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.global.configMapName }}
+                key: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_AUTHORIZATION-URI
+          - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_USERINFO-URI
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.global.configMapName }}
+                key: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_USERINFO-URI
+          - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_EAZYBANK-GATEWAY_CLIENT-ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.global.secretName }}
+                key: keycloakClientId
+          - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_EAZYBANK-GATEWAY_CLIENT-SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.global.secretName }}
+                key: keycloakClientSecret
+          {{- end }}
           {{- if .Values.is_mysql }}
           volumeMounts:
             - name: mysql-persistent-storage

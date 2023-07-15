@@ -9,7 +9,7 @@ replicaCount: 1
 
 image:
   repository: truongngo1993/eazybank-cards
-  tag: latest
+  tag: 2.0.0
 
 containerPort: 8200
 
@@ -27,4 +27,5 @@ eureka_enabled: true
 appname_enabled: true
 database_enabled: true
 is_mysql: false
-auth_enabled: false
+auth_enabled: true
+auth_client_enabled: false

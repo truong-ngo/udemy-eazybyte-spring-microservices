@@ -10,4 +10,10 @@ global:
   mysqlPort: 3306
   mysqlRootUser: root
   mysqlRootPassword: 12345678
-  keyCloakURL: http://my-release-keycloak:80/realms/master/protocol/openid-connect/certs
+  keyCloakURL: http://keycloak:8888/realms/master/protocol/openid-connect/certs
+  tokenUri: http://keycloak:8888/realms/master/protocol/openid-connect/token
+  authorizationUri: http://keycloak:8888/realms/master/protocol/openid-connect/auth
+  userinfoUri: http://keycloak:8888/realms/master/protocol/openid-connect/userinfo
+  secretName: eazybankprod-secret
+  keycloakClientId: eazybank-gateway-ui
+  keycloakClientSecret: 9cK2UY0pfK3VE5bvH1PMEcUDrUlNG0wv
