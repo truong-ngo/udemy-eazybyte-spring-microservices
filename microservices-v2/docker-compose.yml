@@ -141,7 +141,7 @@ services:
       test: curl --fail http://discovery-server:8761/ || exit 1
 
   api-gateway:
-    image: eazybank/api-gateway-v2
+    image: eazybank/api-gateway:2.0.0
     ports:
       - "8765:8765"
     networks:
